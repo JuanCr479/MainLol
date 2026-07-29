@@ -4,7 +4,6 @@ local LocalPlayer = Players.LocalPlayer
 local userKey = getgenv().script_key or script_key or ""
 local keysUrl = "https://raw.githubusercontent.com/JuanCr479/MainLol/refs/heads/main/Keys.lua"
 
--- Cargar la tabla de llaves como código Lua directo
 local success, keysList = pcall(function()
     return loadstring(game:HttpGet(keysUrl))()
 end)
