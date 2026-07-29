@@ -2,35 +2,39 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Obtener la llave ingresada por el cliente
-local userKey = rawget(getgenv(), "script_key") or script_key or ""
+-- Obtener la llave desde el entorno global de los ejecutores (getgenv)
+local userKey = getgenv().script_key or script_key or ""
 
--- Enlace RAW a tu archivo Keys.json
 local keysUrl = "https://raw.githubusercontent.com/JuanCr479/MainLol/refs/heads/main/Keys.json"
 
+-- Descargar el archivo Keys.json
 local success, result = pcall(function()
     return game:HttpGet(keysUrl)
 end)
 
-if success and result then
-    local data = HttpService:JSONDecode(result)
-    local allowedUser = data.KEYS[userKey]
+if success and result and result ~= "" then
+    -- Decodificar JSON
+    local decodeSuccess, data = pcall(function()
+        return HttpService:JSONDecode(result)
+    end)
+    
+    if decodeSuccess and data and data.KEYS then
+        local allowedUser = data.KEYS[userKey]
 
-    if allowedUser and allowedUser == LocalPlayer.Name then
-        print("¡Llave válida! Cargando script...")
+        if allowedUser and allowedUser == LocalPlayer.Name then
+            print("¡Llave válida! Cargando script...")
+        else
+            LocalPlayer:Kick("Llave inválida o no pertenece a esta cuenta de Roblox.")
+            return
+        end
     else
-        LocalPlayer:Kick("Llave inválida o no pertenece a esta cuenta de Roblox.")
+        LocalPlayer:Kick("Error al leer la lista de llaves JSON.")
         return
     end
 else
-    LocalPlayer:Kick("Error al verificar la licencia. Intenta de nuevo.")
+    LocalPlayer:Kick("Error al descargar la lista de licencias.")
     return
 end
 
--- Tu código principal original
-while wait(1) do
-    local args = {
-        1
-    }
-    game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("s")
-end
+-- Tu código principal
+print("Script ejecutado exitosamente por: " .. LocalPlayer.Name)
